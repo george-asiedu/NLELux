@@ -1,5 +1,5 @@
 export const swagger = {
-  swaggerDocsTitle: 'ERP System API Documentation',
+  swaggerDocsTitle: 'NLELux API Documentation',
   swaggerDocsDescription:
     'REST API for NLELux ecommerce platform, providing endpoints for managing products, orders, users, and more.',
   swaggerDocsVersion: '1.0.0',
