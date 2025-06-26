@@ -6,9 +6,11 @@ import {
   allowedHeaders,
   allowedMethods,
   allowedOrigins,
+  errorMessages,
   swagger,
 } from './shared/constants';
 import { Request, Response } from 'express';
+import { NotFoundException } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -43,6 +45,8 @@ async function bootstrap() {
   });
 
   SwaggerModule.setup(swagger.swaggerDocsPath, app, document);
+
+  if (!port) throw new NotFoundException(errorMessages.port);
   await app.listen(port);
 }
 bootstrap();
