@@ -55,3 +55,9 @@ export const patterns = {
   name: /^[A-Za-z]+(\\s[A-Za-z]+)*$/,
   email: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/,
 };
+
+export const emailMessages = {
+  verifyAccount: 'Verify your account',
+  verificationMailSent: 'Verification email sent successfully to',
+  failedVerificationMail: 'Failed to send verification email to',
+};
