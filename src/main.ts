@@ -29,7 +29,6 @@ async function bootstrap() {
     .setVersion(swagger.swaggerDocsVersion)
     .addServer(`${swagger.localUrl}${port}/`, 'Local environment')
     .addServer(swagger.productionUrl, 'Production')
-    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
