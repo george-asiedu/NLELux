@@ -8,7 +8,6 @@ import {
   allowedOrigins,
   swagger,
 } from './shared/constants';
-import { ValidationPipe } from '@nestjs/common';
 import { Request, Response } from 'express';
 
 async function bootstrap() {
@@ -20,7 +19,6 @@ async function bootstrap() {
     credentials: true,
   });
   app.setGlobalPrefix('api/v1');
-  app.useGlobalPipes(new ValidationPipe());
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 1600;
