@@ -20,3 +20,38 @@ export const allowedMethods = [
   'OPTIONS',
 ];
 export const allowedHeaders = 'Content-Type, Accept, X-Powered-By: NLELux';
+
+export const validations = {
+  validationError: 'Validation failed',
+  password:
+    'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+  invalidEmailFormat: 'Please provide a valid email address',
+  emailTyeError: 'Email should be a string',
+  emailError:
+    'Email must be a valid format with only allowed characters (letters, numbers, dots, underscores, hyphens)',
+  emailLengthError: 'Email cannot exceed 50 characters',
+  nameLengthError: 'Name must be at least 5 characters long',
+  nameMaxLengthError: 'Name cannot exceed 50 characters',
+  nameFormatError:
+    'Name must contain only letters and single spaces between words, no numbers or special characters allowed',
+  userExists: 'User already exist',
+  signupFailed: 'Failed to create user',
+  loginFailed: 'Login failed, please check your credentials',
+  userDataRequired: 'User data is required',
+  nameRequired: 'Name is required',
+  emailRequired: 'Email is required',
+  passwordRequired: 'Password is required',
+  passwordLengthError: 'Password must be at least 8 characters long',
+  passwordMaxLengthError: 'Password cannot exceed 50 characters',
+};
+
+export const errorMessages = {
+  port: 'Port not found in environment variables',
+};
+
+export const patterns = {
+  password:
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])[\w!@#$%^&*()\-_=+{};:,<.>]+$/,
+  name: /^[A-Za-z]+(\\s[A-Za-z]+)*$/,
+  email: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/,
+};
