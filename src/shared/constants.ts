@@ -47,6 +47,8 @@ export const validations = {
 
 export const errorMessages = {
   port: 'Port not found in environment variables',
+  userFailed: 'Failed to create user',
+  signupFailed: 'Failed to sign up user',
 };
 
 export const patterns = {
