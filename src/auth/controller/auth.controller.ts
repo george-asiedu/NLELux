@@ -7,7 +7,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ResponseInterceptor } from '../../shared/interceptor/transform.interceptor';
+import { ResponseInterceptor } from '../../shared/interceptor/response.interceptor';
 import { AuthService } from '../service/auth.service';
 import { signupDto, signupSchema } from '../dto/signup.dto';
 import { ZodValidationPipe } from '../../shared/pipe/zod.pipe';
