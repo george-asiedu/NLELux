@@ -43,12 +43,19 @@ export const validations = {
   passwordRequired: 'Password is required',
   passwordLengthError: 'Password must be at least 8 characters long',
   passwordMaxLengthError: 'Password cannot exceed 50 characters',
+  codeRequired: 'Verification code is required',
+  codeFormatError: 'Code must be a 6-digit number',
+  invalidTokenPurpose: 'Invalid token purpose',
+  invalidToken: 'Invalid token',
+  expiredToken: 'Expired verification code',
 };
 
 export const errorMessages = {
   port: 'Port not found in environment variables',
   userFailed: 'Failed to create user',
   signupFailed: 'Failed to sign up user',
+  userNotFound: 'User not found',
+  accountVerificationFailed: 'Account verification failed',
 };
 
 export const patterns = {
@@ -56,6 +63,7 @@ export const patterns = {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])[A-Za-z\d!@#$%^&*()\-_=+{};:,<.>]{8,50}$/,
   name: /^(?! )[A-Za-z]+(?: [A-Za-z]+)*(?<! )$/,
   email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+  code: /^\d{6}$/,
 };
 
 export const emailMessages = {
