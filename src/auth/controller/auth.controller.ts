@@ -15,6 +15,7 @@ import { ZodValidationPipe } from '../../shared/pipe/zod.pipe';
 import {
   signupBadRequest,
   signupResponse,
+  userExists,
 } from '../../shared/utils/swagger.utils';
 
 @ApiTags('Auth')
@@ -40,6 +41,11 @@ export class AuthController {
     status: 400,
     description: 'Bad Request.',
     example: signupBadRequest,
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    example: userExists,
   })
   async signup(@Body() user: signupDto) {
     return await this.authService.signupService(user);

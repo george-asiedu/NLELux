@@ -23,3 +23,9 @@ export const signupBadRequest = {
   error: 'Bad Request',
   statusCode: 400,
 };
+
+export const userExists = {
+  message: 'User already exist',
+  error: 'Conflict',
+  statusCode: 409,
+};
