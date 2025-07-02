@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  HttpCode,
   Post,
   SetMetadata,
   UseInterceptors,
@@ -20,6 +21,7 @@ export class AuthController {
 
   @Post('signup')
   @UsePipes(new ZodValidationPipe(signupSchema))
+  @HttpCode(201)
   @SetMetadata('message', 'User signed up successfully')
   @ApiOperation({ summary: 'User Signup' })
   @ApiBody({
