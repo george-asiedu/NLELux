@@ -3,6 +3,7 @@ import {
   Controller,
   HttpCode,
   Post,
+  Query,
   SetMetadata,
   UseInterceptors,
   UsePipes,
@@ -17,6 +18,10 @@ import {
   signupResponse,
   userExists,
 } from '../../shared/utils/swagger.utils';
+import {
+  verifyAccountDto,
+  verifyAccountSchema,
+} from '../dto/verify_account.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -49,5 +54,16 @@ export class AuthController {
   })
   async signup(@Body() user: signupDto) {
     return await this.authService.signupService(user);
+  }
+
+  @Post('verify-account')
+  @UsePipes(new ZodValidationPipe(verifyAccountSchema))
+  @HttpCode(200)
+  @SetMetadata('message', 'Account verified successfully')
+  @ApiOperation({ summary: 'Verify account using code and token' })
+  @ApiBody({ description: "Two factor auth code to verify user's account" })
+  @ApiResponse({})
+  async verify(@Query('token') token: string, @Body() code: verifyAccountDto) {
+    return this.authService.verifyAccount(code, token);
   }
 }
