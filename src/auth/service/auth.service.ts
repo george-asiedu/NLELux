@@ -14,7 +14,7 @@ import {
 } from '../../shared/utils/auth.utils';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { errorMessages } from '../../shared/constants';
+import { errorMessages, validations } from '../../shared/constants';
 
 @Injectable()
 export class AuthService {
@@ -29,10 +29,9 @@ export class AuthService {
     try {
       const existingUser = await this.prisma.user.findUnique({
         where: { email: user.email },
-        select: { id: true, email: true, name: true, role: true },
       });
       if (existingUser) {
-        throw new ConflictException('User already exists');
+        throw new ConflictException(validations.userExists);
       }
 
       const verificationCode = generateCode();
@@ -64,7 +63,7 @@ export class AuthService {
           code: verificationCode,
           type: 'signup',
         },
-        '1h',
+        '25m',
       );
 
       await this.mail.sendAccountVerificationEmail(
