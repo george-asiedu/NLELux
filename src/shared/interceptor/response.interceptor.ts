@@ -8,21 +8,18 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Reflector } from '@nestjs/core';
 import { Response as ExpressResponse } from 'express';
-
-export interface Response<T> {
-  status: number;
-  message: string;
-  data: T;
-}
+import { ResponseInterface } from '../../model/auth.model';
 
 @Injectable()
-export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
+export class ResponseInterceptor<T>
+  implements NestInterceptor<T, ResponseInterface<T>>
+{
   constructor(private reflector: Reflector) {}
 
   intercept(
     _context: ExecutionContext,
     next: CallHandler,
-  ): Observable<Response<T>> {
+  ): Observable<ResponseInterface<T>> {
     const message = this.reflector.get<string>(
       'message',
       _context.getHandler(),
