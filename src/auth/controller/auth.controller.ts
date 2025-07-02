@@ -12,6 +12,10 @@ import { ResponseInterceptor } from '../../shared/interceptor/response.intercept
 import { AuthService } from '../service/auth.service';
 import { signupDto, signupSchema } from '../dto/signup.dto';
 import { ZodValidationPipe } from '../../shared/pipe/zod.pipe';
+import {
+  signupBadRequest,
+  signupResponse,
+} from '../../shared/utils/swagger.utils';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -30,12 +34,12 @@ export class AuthController {
   @ApiResponse({
     status: 201,
     description: 'User signed up successfully',
-    example: 'Created',
+    example: signupResponse,
   })
   @ApiResponse({
     status: 400,
     description: 'Bad Request.',
-    example: 'BadRequestExample',
+    example: signupBadRequest,
   })
   async signup(@Body() user: signupDto) {
     return await this.authService.signupService(user);
