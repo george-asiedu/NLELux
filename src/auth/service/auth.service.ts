@@ -11,10 +11,12 @@ import {
   generateToken,
   hashPassword,
   tokenExpiresAt,
+  verifyToken,
 } from '../../shared/utils/auth.utils';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { errorMessages, validations } from '../../shared/constants';
+import { verifyAccountDto } from '../dto/verify_account.dto';
 
 @Injectable()
 export class AuthService {
@@ -83,6 +85,54 @@ export class AuthService {
         throw error;
       }
       throw new BadRequestException(errorMessages.signupFailed);
+    }
+  }
+
+  async verifyAccount(body: verifyAccountDto, token: string) {
+    try {
+      const decoded = verifyToken(token, this.jwt, this.configService);
+      if (decoded.type !== 'signup')
+        throw new BadRequestException(validations.invalidTokenPurpose);
+
+      const { email } = decoded;
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+      });
+      if (!user) throw new BadRequestException(errorMessages.userNotFound);
+
+      const verificationToken = await this.prisma.verificationToken.findFirst({
+        where: {
+          userId: user.id,
+          expiresAt: { gt: new Date() },
+        },
+      });
+
+      if (!verificationToken || verificationToken.tokenHash !== body.code) {
+        throw new BadRequestException(validations.invalidToken);
+      }
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { isEmailVerified: true },
+      });
+
+      await this.prisma.verificationToken.delete({
+        where: { id: verificationToken.id },
+      });
+
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+      };
+    } catch (error) {
+      if (error.name === 'TokenExpiredError')
+        throw new BadRequestException(validations.expiredToken);
+      throw new BadRequestException(
+        error.message || errorMessages.accountVerificationFailed,
+      );
     }
   }
 }
