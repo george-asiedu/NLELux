@@ -3,7 +3,7 @@ import {
   BadRequestException,
   PipeTransform,
 } from '@nestjs/common';
-import { ZodSchema } from 'zod';
+import { ZodError, ZodSchema } from 'zod';
 import { validations } from '../constants';
 
 export class ZodValidationPipe implements PipeTransform {
@@ -13,6 +13,13 @@ export class ZodValidationPipe implements PipeTransform {
     try {
       return this.schema.parse(value);
     } catch (error) {
+      if (error instanceof ZodError) {
+        const messages = error.errors.map(
+          (err) => `${err.path.join('.')} - ${err.message}`,
+        );
+        throw new BadRequestException(messages);
+      }
+
       throw new BadRequestException(validations.validationError);
     }
   }
