@@ -53,9 +53,9 @@ export const errorMessages = {
 
 export const patterns = {
   password:
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])[\w!@#$%^&*()\-_=+{};:,<.>]+$/,
-  name: /^[A-Za-z]+(\\s[A-Za-z]+)*$/,
-  email: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/,
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])[A-Za-z\d!@#$%^&*()\-_=+{};:,<.>]{8,50}$/,
+  name: /^(?! )[A-Za-z]+(?: [A-Za-z]+)*(?<! )$/,
+  email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
 };
 
 export const emailMessages = {
