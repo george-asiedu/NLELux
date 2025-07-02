@@ -12,9 +12,9 @@ import {
   hashPassword,
   tokenExpiresAt,
 } from '../../shared/utils/auth.utils';
-import { errorMessages } from '../../shared/constants';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { errorMessages } from '../../shared/constants';
 
 @Injectable()
 export class AuthService {
