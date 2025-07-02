@@ -30,6 +30,15 @@ export const generateToken = (
   return jwtService.sign(payload, { secret, expiresIn });
 };
 
+export const verifyToken = (
+  token: string,
+  jwtService: JwtService,
+  configService: ConfigService,
+) => {
+  const secret = configService.get<string>('JWT_SECRET');
+  return jwtService.verify(token, { secret }) as JwtTokenPayload;
+};
+
 export const generateRawToken = (): string => {
   return randomBytes(32).toString('hex');
 };
