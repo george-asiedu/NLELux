@@ -16,7 +16,9 @@ import { ZodValidationPipe } from '../../shared/pipe/zod.pipe';
 import {
   signupBadRequest,
   signupResponse,
+  SignupSwaggerDto,
   userExists,
+  VerifyAccountSwaggerDto,
 } from '../../shared/utils/swagger.utils';
 import {
   verifyAccountDto,
@@ -26,6 +28,7 @@ import {
   responseDescription,
   successMessages,
 } from 'src/shared/utils/constants';
+import { AuthRoutes } from 'src/shared/utils/routes';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -33,12 +36,13 @@ import {
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('signup')
+  @Post(AuthRoutes.signup)
   @UsePipes(new ZodValidationPipe(signupSchema))
   @HttpCode(201)
   @SetMetadata('message', successMessages.signup)
   @ApiOperation({ summary: 'User Signup' })
   @ApiBody({
+    type: SignupSwaggerDto,
     description: 'JSON object containing user signup details',
   })
   @ApiResponse({
@@ -60,12 +64,15 @@ export class AuthController {
     return await this.authService.signupService(user);
   }
 
-  @Post('verify-account')
+  @Post(AuthRoutes.verifyAccount)
   @UsePipes(new ZodValidationPipe(verifyAccountSchema))
   @HttpCode(200)
-  @SetMetadata('message', 'Account verified successfully')
+  @SetMetadata('message', successMessages.accountVerified)
   @ApiOperation({ summary: 'Verify account using code and token' })
-  @ApiBody({ description: "Two factor auth code to verify user's account" })
+  @ApiBody({
+    description: "Two factor auth code to verify user's account",
+    type: VerifyAccountSwaggerDto,
+  })
   @ApiResponse({})
   async verify(@Query('token') token: string, @Body() code: verifyAccountDto) {
     return this.authService.verifyAccount(code, token);

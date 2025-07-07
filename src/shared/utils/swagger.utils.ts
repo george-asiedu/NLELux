@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export const signupResponse = {
   status: 201,
   message: 'User signed up successfully',
@@ -30,3 +32,22 @@ export const userExists = {
   error: 'Conflict',
   statusCode: 409,
 };
+
+export class SignupSwaggerDto {
+  @ApiProperty({ example: 'Kanan Stark' })
+  name: string;
+
+  @ApiProperty({ example: 'resiw33129@ofacer.com' })
+  email: string;
+
+  @ApiProperty({ example: 'Password123!' })
+  password: string;
+
+  @ApiProperty({ example: 'Password123!' })
+  confirmPassword: string;
+}
+
+export class VerifyAccountSwaggerDto {
+  @ApiProperty({ example: '123456' })
+  code: string;
+}
