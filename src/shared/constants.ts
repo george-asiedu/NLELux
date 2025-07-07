@@ -41,6 +41,8 @@ export const validations = {
   nameRequired: 'Name is required',
   emailRequired: 'Email is required',
   passwordRequired: 'Password is required',
+  confirmPasswordRequired: 'Confirm password is required',
+  passwordsDoNotMatch: 'Passwords do not match',
   passwordLengthError: 'Password must be at least 8 characters long',
   passwordMaxLengthError: 'Password cannot exceed 50 characters',
   codeRequired: 'Verification code is required',
