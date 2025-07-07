@@ -4,7 +4,7 @@ import {
   PipeTransform,
 } from '@nestjs/common';
 import { ZodError, ZodSchema } from 'zod';
-import { validations } from '../constants';
+import { validations } from '../utils/constants';
 
 export class ZodValidationPipe implements PipeTransform {
   constructor(private schema: ZodSchema) {}

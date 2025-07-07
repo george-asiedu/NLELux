@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { verifyEmailTemplate } from '../template/verify_email.template';
-import { emailMessages } from '../../shared/constants';
+import { emailMessages } from '../../shared/utils/constants';
 
 @Injectable()
 export class MailService {

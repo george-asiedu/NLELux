@@ -15,7 +15,7 @@ import {
 } from '../../shared/utils/auth.utils';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { errorMessages, validations } from '../../shared/constants';
+import { errorMessages, validations } from '../../shared/utils/constants';
 import { verifyAccountDto } from '../dto/verify_account.dto';
 
 @Injectable()
@@ -38,14 +38,12 @@ export class AuthService {
 
       const verificationCode = generateCode();
       const hashedPassword = await hashPassword(user.password);
-      const hashedConfirmPassword = await hashPassword(user.confirmPassword);
 
       const newUser = await this.prisma.user.create({
         data: {
           name: user.name,
           email: user.email,
           password: hashedPassword,
-          confirmPassword: hashedConfirmPassword,
         },
         select: { id: true, email: true, name: true },
       });

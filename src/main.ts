@@ -8,7 +8,7 @@ import {
   allowedOrigins,
   errorMessages,
   swagger,
-} from './shared/constants';
+} from './shared/utils/constants';
 import { Request, Response } from 'express';
 import { NotFoundException } from '@nestjs/common';
 

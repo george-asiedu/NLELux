@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { privileges } from '../constants';
+import { privileges } from '../utils/constants';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { Role } from '@prisma/client';

@@ -22,6 +22,10 @@ import {
   verifyAccountDto,
   verifyAccountSchema,
 } from '../dto/verify_account.dto';
+import {
+  responseDescription,
+  successMessages,
+} from 'src/shared/utils/constants';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -32,24 +36,24 @@ export class AuthController {
   @Post('signup')
   @UsePipes(new ZodValidationPipe(signupSchema))
   @HttpCode(201)
-  @SetMetadata('message', 'User signed up successfully')
+  @SetMetadata('message', successMessages.signup)
   @ApiOperation({ summary: 'User Signup' })
   @ApiBody({
     description: 'JSON object containing user signup details',
   })
   @ApiResponse({
     status: 201,
-    description: 'User signed up successfully',
+    description: successMessages.signup,
     example: signupResponse,
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad Request.',
+    description: responseDescription.badRequest,
     example: signupBadRequest,
   })
   @ApiResponse({
     status: 409,
-    description: 'Conflict',
+    description: responseDescription.conflict,
     example: userExists,
   })
   async signup(@Body() user: signupDto) {

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { privileges, validations } from '../constants';
+import { privileges, validations } from '../utils/constants';
 import { AuthRequest } from 'src/model/auth.model';
 
 @Injectable()

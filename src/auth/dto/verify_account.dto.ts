@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { patterns, validations } from '../../shared/constants';
+import { patterns, validations } from '../../shared/utils/constants';
 
 export const verifyAccountSchema = z
   .object({
