@@ -97,6 +97,7 @@ export class AuthService {
       const { email } = decoded;
       const user = await this.prisma.user.findUnique({
         where: { email },
+        select: { id: true, name: true, email: true, isEmailVerified: true },
       });
       if (!user) throw new BadRequestException(errorMessages.userNotFound);
 
@@ -125,6 +126,7 @@ export class AuthService {
           id: user.id,
           name: user.name,
           email: user.email,
+          isEmailVerified: true,
         },
       };
     } catch (error: unknown) {
