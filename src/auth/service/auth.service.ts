@@ -127,11 +127,18 @@ export class AuthService {
           email: user.email,
         },
       };
-    } catch (error) {
-      if (error.name === 'TokenExpiredError')
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'name' in error &&
+        error.name === 'TokenExpiredError'
+      )
         throw new BadRequestException(validations.expiredToken);
       throw new BadRequestException(
-        error.message || errorMessages.accountVerificationFailed,
+        (typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message?: string }).message
+          : undefined) || errorMessages.accountVerificationFailed,
       );
     }
   }
