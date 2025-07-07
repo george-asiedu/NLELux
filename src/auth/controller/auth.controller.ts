@@ -8,7 +8,13 @@ import {
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ResponseInterceptor } from '../../shared/interceptor/response.interceptor';
 import { AuthService } from '../service/auth.service';
 import { signupDto, signupSchema } from '../dto/signup.dto';
@@ -18,6 +24,8 @@ import {
   signupResponse,
   SignupSwaggerDto,
   userExists,
+  verifyAccountBadRequest,
+  verifyAccountResponse,
   VerifyAccountSwaggerDto,
 } from '../../shared/utils/swagger.utils';
 import {
@@ -69,11 +77,25 @@ export class AuthController {
   @HttpCode(200)
   @SetMetadata('message', successMessages.accountVerified)
   @ApiOperation({ summary: 'Verify account using code and token' })
+  @ApiParam({
+    name: 'token',
+    description: 'Token to verify user account',
+    required: true,
+  })
   @ApiBody({
     description: "Two factor auth code to verify user's account",
     type: VerifyAccountSwaggerDto,
   })
-  @ApiResponse({})
+  @ApiResponse({
+    status: 200,
+    description: successMessages.accountVerified,
+    example: verifyAccountResponse,
+  })
+  @ApiResponse({
+    status: 400,
+    description: responseDescription.badRequest,
+    example: verifyAccountBadRequest,
+  })
   async verify(@Query('token') token: string, @Body() code: verifyAccountDto) {
     return this.authService.verifyAccount(code, token);
   }
