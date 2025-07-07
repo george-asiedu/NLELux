@@ -1,9 +1,5 @@
+import { VerifyEmailProps } from 'src/model/auth.model';
 import { emailTemplate } from './email.template';
-
-interface VerifyEmailProps {
-  code: string;
-  expirationTime?: string;
-}
 
 export const verifyEmailTemplate = ({
   code,
@@ -13,7 +9,7 @@ export const verifyEmailTemplate = ({
     <div class="content">
       <h2>Verify Your Email Address</h2>
       <p>Hello,</p>
-      <p>Thank you for signing up with NLE HIVE. To complete your registration, please use the verification code below:</p>
+      <p>Thank you for signing up with NLE LUX. To complete your registration, please use the verification code below:</p>
       
       <div class="verification-code">
         ${code}
@@ -27,7 +23,7 @@ export const verifyEmailTemplate = ({
       
       <p>If you didn't request this verification code, please ignore this email or contact our support team if you have concerns.</p>
       
-      <p>Best regards,<br>The NLE HIVE Team</p>
+      <p>Best regards,<br>The NLE LUX Team</p>
     </div>
   `;
 
