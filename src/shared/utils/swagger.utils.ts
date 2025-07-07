@@ -19,6 +19,7 @@ export const signupBadRequest = {
     'email - Email must be a valid format with only allowed characters (letters, numbers, dots, underscores, hyphens)',
     'password - Password must be at least 8 characters long',
     'password - Password cannot exceed 50 characters',
+    'passwordsDoNotMatch - Passwords do not match',
   ],
   error: 'Bad Request',
   statusCode: 400,
