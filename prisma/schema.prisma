@@ -24,6 +24,7 @@ model User {
   email           String    @unique
   role            Role      @default(customer)
   password        String
+  confirmPassword String
   phone           String?
   address         String?
   dateOfBirth     DateTime?
