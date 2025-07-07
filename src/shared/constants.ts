@@ -48,7 +48,7 @@ export const validations = {
   invalidTokenPurpose: 'Invalid token purpose',
   invalidToken: 'Invalid token',
   expiredToken: 'Expired verification code',
-  rolesKey: 'roles',
+  noTokenProvided: 'No token provided',
 };
 
 export const errorMessages = {
@@ -71,4 +71,10 @@ export const emailMessages = {
   verifyAccount: 'Verify your account',
   verificationMailSent: 'Verification email sent successfully to',
   failedVerificationMail: 'Failed to send verification email to',
+};
+
+export const privileges = {
+  rolesKey: 'roles',
+  privilegesRestricted:
+    'Role does not have the required privileges to access this resource',
 };
