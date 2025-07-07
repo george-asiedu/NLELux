@@ -4,7 +4,10 @@ export const emailTemplate = (content: string) => `
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NLE HIVE</title>
+  <title>NLE LUX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -13,7 +16,7 @@ export const emailTemplate = (content: string) => `
     }
 
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: "Roboto Flex", sans-serif;
       line-height: 1.6;
       margin: 0;
       padding: 0;
@@ -73,11 +76,11 @@ export const emailTemplate = (content: string) => `
 <body>
   <div class="container">
     <div class="header">
-      <img src="https://res.cloudinary.com/dhyqv69zh/image/upload/v1750933301/LOGO_s3ahvu.png" alt="NLE HIVE Logo">
+      <img src="https://res.cloudinary.com/dhyqv69zh/image/upload/nle_logo_focipq.png" alt="NLE Lux Logo">
     </div>
     ${content}
     <div class="footer">
-      <p>© ${new Date().getFullYear()} NLE HIVE. All rights reserved.</p>
+      <p>© ${new Date().getFullYear()} NLE LUX. All rights reserved.</p>
       <p>This is an automated message, please do not reply to this email.</p>
       <p>
         <a href="#privacy">Privacy Policy</a> | 
