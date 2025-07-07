@@ -73,7 +73,6 @@ export class AuthController {
   }
 
   @Post(AuthRoutes.verifyAccount)
-  @UsePipes(new ZodValidationPipe(verifyAccountSchema))
   @HttpCode(200)
   @SetMetadata('message', successMessages.accountVerified)
   @ApiOperation({ summary: 'Verify account using code and token' })
@@ -96,7 +95,10 @@ export class AuthController {
     description: responseDescription.badRequest,
     example: verifyAccountBadRequest,
   })
-  async verify(@Query('token') token: string, @Body() code: verifyAccountDto) {
+  async verify(
+    @Query('token') token: string,
+    @Body(new ZodValidationPipe(verifyAccountSchema)) code: verifyAccountDto,
+  ) {
     return this.authService.verifyAccount(code, token);
   }
 }
