@@ -14,6 +14,19 @@ export const signupResponse = {
   },
 };
 
+export const verifyAccountResponse = {
+  status: 200,
+  message: 'Account verified successfully',
+  data: {
+    user: {
+      id: '6864f9891a83097e94c27686',
+      email: 'resiw33129@ofacer.com',
+      name: 'Kanan Stark',
+      isEmailVerified: true,
+    },
+  },
+};
+
 export const signupBadRequest = {
   message: [
     'name - Name must contain only letters and single spaces between words, no numbers or special characters allowed',
@@ -22,6 +35,15 @@ export const signupBadRequest = {
     'password - Password must be at least 8 characters long',
     'password - Password cannot exceed 50 characters',
     'passwordsDoNotMatch - Passwords do not match',
+  ],
+  error: 'Bad Request',
+  statusCode: 400,
+};
+
+export const verifyAccountBadRequest = {
+  message: [
+    'code - Verification code is required',
+    'code - Code must be a 6-digit number',
   ],
   error: 'Bad Request',
   statusCode: 400,
