@@ -48,6 +48,7 @@ export const validations = {
   invalidTokenPurpose: 'Invalid token purpose',
   invalidToken: 'Invalid token',
   expiredToken: 'Expired verification code',
+  rolesKey: 'roles',
 };
 
 export const errorMessages = {
