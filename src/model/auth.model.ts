@@ -20,3 +20,17 @@ export interface ResponseInterface<T> {
   message: string;
   data: T;
 }
+
+export interface AuthRequest {
+  headers: {
+    authorization?: string;
+    [key: string]: any;
+  };
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  };
+  [key: string]: any;
+}
