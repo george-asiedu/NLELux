@@ -34,3 +34,8 @@ export interface AuthRequest {
   };
   [key: string]: any;
 }
+
+export interface VerifyEmailProps {
+  code: string;
+  expirationTime?: string;
+}
