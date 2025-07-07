@@ -17,10 +17,11 @@ export class MailService {
         html: verifyEmailTemplate({ code }),
       });
       this.logger.log(`${emailMessages.verificationMailSent} ${email}`);
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as Error;
       this.logger.error(
-        `${emailMessages.failedVerificationMail} ${email}: ${error.message}`,
-        error.stack,
+        `${emailMessages.failedVerificationMail} ${email}: ${err.message}`,
+        err.stack,
       );
       return false;
     }
