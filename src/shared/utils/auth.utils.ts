@@ -3,6 +3,9 @@ import { JwtTokenPayload } from '../../model/auth.model';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { createHash, randomBytes } from 'crypto';
+import { PrismaService } from '../../prisma/prisma.service';
+import { ConflictException } from '@nestjs/common';
+import { validations } from './constants';
 
 export const hashPassword = async (password: string) => {
   const salt = await bcrypt.genSalt(10);
@@ -49,4 +52,14 @@ export const hashToken = (token: string): string => {
 
 export const tokenExpiresAt = () => {
   return new Date(Date.now() + 15 * 60 * 1000);
+};
+
+export const existingUser = async (prisma: PrismaService, email: string) => {
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+  if (existingUser) {
+    throw new ConflictException(validations.userExists);
+  }
+  return existingUser;
 };
