@@ -7,6 +7,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { MailService } from '../../mail/service/mail.service';
 import { signupDto } from '../dto/signup.dto';
 import {
+  comparePassword,
   existingUser,
   generateCode,
   generateToken,
@@ -19,6 +20,7 @@ import { ConfigService } from '@nestjs/config';
 import { errorMessages, validations } from '../../shared/utils/constants';
 import { verifyAccountDto } from '../dto/verify_account.dto';
 import { signinDto } from '../dto/signin.dto';
+import { JwtPayload } from 'src/model/auth.model';
 
 @Injectable()
 export class AuthService {
@@ -137,6 +139,77 @@ export class AuthService {
         (typeof error === 'object' && error !== null && 'message' in error
           ? (error as { message?: string }).message
           : undefined) || errorMessages.accountVerificationFailed,
+      );
+    }
+  }
+
+  async signinService(user: signinDto) {
+    try {
+      const foundUser = await this.prisma.user.findUnique({
+        where: { email: user.email.toLowerCase() },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          isEmailVerified: true,
+          password: true,
+        },
+      });
+      if (!foundUser) {
+        throw new BadRequestException(validations.invalidCredentials);
+      }
+
+      if (!foundUser.isEmailVerified) {
+        throw new BadRequestException(validations.emailNotVerified);
+      }
+
+      const isPasswordValid = await comparePassword(
+        user.password,
+        foundUser.password,
+      );
+      if (!isPasswordValid) {
+        throw new BadRequestException(validations.invalidPassword);
+      }
+
+      const payload: JwtPayload = {
+        userId: foundUser.id,
+      };
+
+      const accessToken = this.jwt.sign(payload, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+        expiresIn: this.configService.get<string>('JWT_EXPIRATION'),
+      });
+
+      const refreshToken = this.jwt.sign(payload, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES'),
+      });
+
+      await this.prisma.refreshToken.create({
+        data: {
+          userId: foundUser.id,
+          tokenHash: refreshToken,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
+      });
+
+      return {
+        user: {
+          id: foundUser.id,
+          name: foundUser.name,
+          email: foundUser.email,
+          role: foundUser.role,
+          isEmailVerified: foundUser.isEmailVerified,
+        },
+        accessToken,
+        refreshToken,
+      };
+    } catch (error) {
+      throw new BadRequestException(
+        (typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message?: string }).message
+          : undefined) || errorMessages.signinFailed,
       );
     }
   }
