@@ -7,6 +7,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { MailService } from '../../mail/service/mail.service';
 import { signupDto } from '../dto/signup.dto';
 import {
+  existingUser,
   generateCode,
   generateToken,
   hashPassword,
@@ -17,6 +18,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { errorMessages, validations } from '../../shared/utils/constants';
 import { verifyAccountDto } from '../dto/verify_account.dto';
+import { signinDto } from '../dto/signin.dto';
 
 @Injectable()
 export class AuthService {
@@ -29,13 +31,7 @@ export class AuthService {
 
   async signupService(user: signupDto) {
     try {
-      const existingUser = await this.prisma.user.findUnique({
-        where: { email: user.email },
-      });
-      if (existingUser) {
-        throw new ConflictException(validations.userExists);
-      }
-
+      await existingUser(this.prisma, user.email);
       const verificationCode = generateCode();
       const hashedPassword = await hashPassword(user.password);
 
