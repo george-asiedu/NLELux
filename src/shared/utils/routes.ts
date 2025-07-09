@@ -1,7 +1,7 @@
 export const AuthRoutes = {
   signup: 'signup',
   verifyAccount: 'verify-account',
-  login: 'login',
+  signin: 'signin',
   refreshToken: 'refresh-token',
   forgotPassword: 'forgot-password',
   resetPassword: 'reset-password',
