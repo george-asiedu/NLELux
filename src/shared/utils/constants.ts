@@ -65,8 +65,8 @@ export const errorMessages = {
   signinFailed: 'Failed to sign in user',
 };
 export const successMessages = {
-  signup: 'User signed up successfully',
-  login: 'User logged in successfully',
+  signup: 'Signup successful',
+  login: 'Signin successful',
   accountVerified: 'Account verified successfully',
 };
 
@@ -88,12 +88,4 @@ export const privileges = {
   rolesKey: 'roles',
   privilegesRestricted:
     'Role does not have the required privileges to access this resource',
-};
-
-export const responseDescription = {
-  badRequest: 'Bad Request',
-  unauthorized: 'Unauthorized',
-  forbidden: 'Forbidden',
-  notFound: 'Not Found',
-  conflict: 'Conflict',
 };
