@@ -34,9 +34,9 @@ export const verifyToken = (
   token: string,
   jwtService: JwtService,
   configService: ConfigService,
-) => {
+): JwtTokenPayload => {
   const secret = configService.get<string>('JWT_SECRET');
-  return jwtService.verify(token, { secret }) as JwtTokenPayload;
+  return jwtService.verify<JwtTokenPayload>(token, { secret });
 };
 
 export const generateRawToken = (): string => {
