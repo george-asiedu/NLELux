@@ -27,16 +27,20 @@ import {
   verifyAccountBadRequest,
   verifyAccountResponse,
   VerifyAccountSwaggerDto,
+  signinResponse,
+  signinBadRequest,
+  SigninSwaggerDto,
+  bodyDescription,
+  summary,
+  responseDescription,
 } from '../../shared/utils/swagger.utils';
 import {
   verifyAccountDto,
   verifyAccountSchema,
 } from '../dto/verify_account.dto';
-import {
-  responseDescription,
-  successMessages,
-} from 'src/shared/utils/constants';
+import { successMessages } from 'src/shared/utils/constants';
 import { AuthRoutes } from 'src/shared/utils/routes';
+import { signinDto, signinSchema } from '../dto/signin.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -48,10 +52,10 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(signupSchema))
   @HttpCode(201)
   @SetMetadata('message', successMessages.signup)
-  @ApiOperation({ summary: 'User Signup' })
+  @ApiOperation({ summary: summary.signup })
   @ApiBody({
     type: SignupSwaggerDto,
-    description: 'JSON object containing user signup details',
+    description: bodyDescription.signup,
   })
   @ApiResponse({
     status: 201,
@@ -75,14 +79,14 @@ export class AuthController {
   @Post(AuthRoutes.verifyAccount)
   @HttpCode(200)
   @SetMetadata('message', successMessages.accountVerified)
-  @ApiOperation({ summary: 'Verify account using code and token' })
+  @ApiOperation({ summary: summary.verifyAccount })
   @ApiParam({
     name: 'token',
-    description: 'Token to verify user account',
+    description: bodyDescription.tokenParam,
     required: true,
   })
   @ApiBody({
-    description: "Two factor auth code to verify user's account",
+    description: bodyDescription.verifyAccount,
     type: VerifyAccountSwaggerDto,
   })
   @ApiResponse({
@@ -100,5 +104,28 @@ export class AuthController {
     @Body(new ZodValidationPipe(verifyAccountSchema)) code: verifyAccountDto,
   ) {
     return this.authService.verifyAccount(code, token);
+  }
+
+  @Post(AuthRoutes.signin)
+  @UsePipes(new ZodValidationPipe(signinSchema))
+  @HttpCode(200)
+  @SetMetadata('message', successMessages.login)
+  @ApiOperation({ summary: summary.signin })
+  @ApiBody({
+    type: SigninSwaggerDto,
+    description: bodyDescription.signin,
+  })
+  @ApiResponse({
+    status: 200,
+    description: successMessages.login,
+    example: signinResponse,
+  })
+  @ApiResponse({
+    status: 400,
+    description: responseDescription.badRequest,
+    example: signinBadRequest,
+  })
+  async signin(@Body() user: signinDto) {
+    return await this.authService.signinService(user);
   }
 }
