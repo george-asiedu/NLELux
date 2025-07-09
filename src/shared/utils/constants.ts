@@ -51,6 +51,9 @@ export const validations = {
   invalidToken: 'Invalid token',
   expiredToken: 'Expired verification code',
   noTokenProvided: 'No token provided',
+  emailNotVerified: 'Email not verified, Please verify your email',
+  invalidCredentials: 'Invalid email or password',
+  invalidPassword: 'Invalid password',
 };
 
 export const errorMessages = {
@@ -59,6 +62,7 @@ export const errorMessages = {
   signupFailed: 'Failed to sign up user',
   userNotFound: 'User not found',
   accountVerificationFailed: 'Account verification failed',
+  signinFailed: 'Failed to sign in user',
 };
 export const successMessages = {
   signup: 'User signed up successfully',
