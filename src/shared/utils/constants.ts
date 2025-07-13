@@ -19,9 +19,6 @@ export const allowedMethods = [
   'PATCH',
   'OPTIONS',
 ];
-
-export const allowedHeadersd = 'Content-Type, Accept, X-Powered-By: NLELux';
-
 export const allowedHeaders = 'Content-Type, Accept, X-Powered-By: NLELux';
 
 export const validations = {
