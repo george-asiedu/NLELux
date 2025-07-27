@@ -1,11 +1,7 @@
 import * as bcrypt from 'bcrypt';
-import { JwtTokenPayload } from '../../model/auth.model';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { createHash, randomBytes } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ConflictException } from '@nestjs/common';
-import { validations } from './constants';
+import { ConflictException, NotFoundException } from '@nestjs/common';
+import { errorMessages, validations } from './constants';
 
 export const hashPassword = async (password: string) => {
   const salt = await bcrypt.genSalt(10);
@@ -23,43 +19,32 @@ export const generateCode = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-export const generateToken = (
-  jwtService: JwtService,
-  configService: ConfigService,
-  payload: JwtTokenPayload,
-  expiresIn: string,
-): string => {
-  const secret = configService.get<string>('JWT_SECRET');
-  return jwtService.sign(payload, { secret, expiresIn });
-};
-
-export const verifyToken = (
-  token: string,
-  jwtService: JwtService,
-  configService: ConfigService,
-): JwtTokenPayload => {
-  const secret = configService.get<string>('JWT_SECRET');
-  return jwtService.verify<JwtTokenPayload>(token, { secret });
-};
-
-export const generateRawToken = (): string => {
-  return randomBytes(32).toString('hex');
-};
-
-export const hashToken = (token: string): string => {
-  return createHash('sha256').update(token).digest('hex');
-};
-
-export const tokenExpiresAt = () => {
-  return new Date(Date.now() + 15 * 60 * 1000);
-};
-
 export const existingUser = async (prisma: PrismaService, email: string) => {
   const existingUser = await prisma.user.findUnique({
-    where: { email },
+    where: { email: email.toLowerCase() },
   });
-  if (existingUser) {
-    throw new ConflictException(validations.userExists);
-  }
+  if (existingUser) throw new ConflictException(validations.userExits);
   return existingUser;
+};
+
+export const findUserByEmail = async (prisma: PrismaService, email: string) => {
+  const foundUser = await prisma.user.findUnique({
+    where: { email: email.toLowerCase() },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      accountStatus: true,
+      password: true,
+    },
+  });
+  if (!foundUser) throw new NotFoundException(errorMessages.userNotFound);
+  return foundUser;
+};
+
+export const findUserByID = async (prisma: PrismaService, id: string) => {
+  const foundUser = await prisma.user.findUnique({ where: { id } });
+  if (!foundUser) throw new NotFoundException(errorMessages.userNotFound);
+  return foundUser;
 };
