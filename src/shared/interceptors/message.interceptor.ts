@@ -4,11 +4,11 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { MessageOnly } from '../interfaces/auth/auth.model';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { Response as ExpressResponse } from 'express';
 import { map } from 'rxjs/operators';
+import { MessageOnly } from '../interfaces/auth.model';
 
 @Injectable()
 export class MessageInterceptor implements NestInterceptor {
