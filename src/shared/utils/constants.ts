@@ -47,13 +47,13 @@ export const validations = {
   passwordMaxLengthError: 'Password cannot exceed 50 characters',
   codeRequired: 'Verification code is required',
   codeFormatError: 'Code must be a 6-digit number',
-  invalidTokenPurpose: 'Invalid token purpose',
-  invalidToken: 'Invalid token',
-  expiredToken: 'Expired verification code',
+  tokenRequired: 'Token s required',
+  invalidToken: 'Invalid or expired token',
   noTokenProvided: 'No token provided',
   emailNotVerified: 'Email not verified, Please verify your email',
   invalidCredentials: 'Invalid email or password',
   invalidPassword: 'Invalid password',
+  userExits: 'User already exist',
 };
 
 export const errorMessages = {
@@ -63,10 +63,11 @@ export const errorMessages = {
   userNotFound: 'User not found',
   accountVerificationFailed: 'Account verification failed',
   signinFailed: 'Failed to sign in user',
+  accountAlreadyVerified: 'Email is already verified',
 };
 export const successMessages = {
   signup: 'Signup successful',
-  login: 'Signin successful',
+  signin: 'Signin successful',
   accountVerified: 'Account verified successfully',
 };
 
