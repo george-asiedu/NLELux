@@ -8,52 +8,37 @@ datasource db {
 }
 
 enum Role {
-  customer
-  admin
+  CUSTOMER
+  ADMIN
 }
 
 enum Gender {
-  male
-  female
-  nonBinary
+  MALE
+  FEMALE
+  NON_BINARY
+}
+
+enum AccountStatus {
+  VERIFIED
+  PENDING
+  SUSPENDED
 }
 
 model User {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  email           String    @unique
-  role            Role      @default(customer)
-  password        String
-  phone           String?
-  address         String?
-  dateOfBirth     DateTime?
-  gender          Gender?
-  isEmailVerified Boolean   @default(false)
-  avatar          String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String        @unique
+  role          Role          @default(CUSTOMER)
+  password      String
+  phone         String?
+  address       String?
+  dateOfBirth   DateTime?
+  gender        Gender?
+  accountStatus AccountStatus @default(PENDING)
+  avatar        String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  VerificationToken VerificationToken[]
-  RefreshToken      RefreshToken[]
-}
-
-model VerificationToken {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  tokenHash String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model RefreshToken {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  tokenHash String
-  isRevoked Boolean  @default(false)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([role])
+  @@index([accountStatus])
 }
