@@ -1,5 +1,6 @@
-import { VerifyEmailProps } from 'src/model/auth.model';
+// import { VerifyEmailProps } from 'src/shared/model/auth.model';
 import { emailTemplate } from './email.template';
+import { VerifyEmailProps } from '../../shared/interfaces/auth.model';
 
 export const verifyEmailTemplate = ({
   code,
