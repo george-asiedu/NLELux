@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MailService } from '../../mail/service/mail.service';
@@ -9,72 +10,64 @@ import { signupDto } from '../dto/signup.dto';
 import {
   comparePassword,
   existingUser,
+  findUserByEmail,
   generateCode,
-  generateToken,
   hashPassword,
-  tokenExpiresAt,
-  verifyToken,
 } from '../../shared/utils/auth.utils';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { errorMessages, validations } from '../../shared/utils/constants';
 import { verifyAccountDto } from '../dto/verify_account.dto';
 import { signinDto } from '../dto/signin.dto';
-import { JwtPayload } from 'src/model/auth.model';
+import {
+  AuthToken,
+  JwtTokenPayload,
+  UserInfo,
+} from '../../shared/interfaces/auth.model';
+import { AccountStatus } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
+  private readonly secret: string | undefined;
+
   constructor(
     private prisma: PrismaService,
-    private mail: MailService,
-    private jwt: JwtService,
+    private mailService: MailService,
+    private jwtService: JwtService,
     private configService: ConfigService,
-  ) {}
+  ) {
+    this.secret = this.configService.get<string>('JWT_SECRET');
+  }
 
   async signupService(user: signupDto) {
     try {
       await existingUser(this.prisma, user.email);
       const verificationCode = generateCode();
       const hashedPassword = await hashPassword(user.password);
+      const signupTokenDuration = '30m';
 
-      const newUser = await this.prisma.user.create({
+      await this.prisma.user.create({
         data: {
           name: user.name,
           email: user.email,
           password: hashedPassword,
         },
-        select: { id: true, email: true, name: true },
       });
 
-      const expiresAt = tokenExpiresAt();
-      await this.prisma.verificationToken.create({
-        data: {
-          userId: newUser.id,
-          tokenHash: verificationCode,
-          expiresAt,
-        },
-      });
-
-      const token = generateToken(
-        this.jwt,
-        this.configService,
+      const token = this.jwtService.sign(
         {
-          email: newUser.email,
+          sub: user.email,
           code: verificationCode,
-          type: 'signup',
         },
-        '25m',
+        { expiresIn: signupTokenDuration, secret: this.secret },
       );
 
-      await this.mail.sendAccountVerificationEmail(
+      await this.mailService.sendAccountVerificationEmail(
         user.email,
         verificationCode,
       );
 
-      return {
-        user: newUser,
-        token,
-      };
+      return { token };
     } catch (error) {
       if (
         error instanceof ConflictException ||
@@ -88,122 +81,69 @@ export class AuthService {
 
   async verifyAccount(body: verifyAccountDto, token: string) {
     try {
-      const decoded = verifyToken(token, this.jwt, this.configService);
-      if (decoded.type !== 'signup')
-        throw new BadRequestException(validations.invalidTokenPurpose);
+      if (!body.code) throw new BadRequestException(validations.codeRequired);
 
-      const { email } = decoded;
-      const user = await this.prisma.user.findUnique({
-        where: { email },
-        select: { id: true, name: true, email: true, isEmailVerified: true },
+      const payload: JwtTokenPayload = this.jwtService.verify(token, {
+        secret: this.secret,
       });
-      if (!user) throw new BadRequestException(errorMessages.userNotFound);
+      if (!payload) throw new BadRequestException(validations.tokenRequired);
 
-      const verificationToken = await this.prisma.verificationToken.findFirst({
-        where: {
-          userId: user.id,
-          expiresAt: { gt: new Date() },
-        },
-      });
-
-      if (!verificationToken || verificationToken.tokenHash !== body.code) {
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (payload.exp && payload.exp < currentTime) {
         throw new BadRequestException(validations.invalidToken);
       }
 
-      await this.prisma.user.update({
+      const user = await findUserByEmail(this.prisma, payload.sub);
+      if (user.accountStatus === AccountStatus.VERIFIED) {
+        throw new BadRequestException(errorMessages.accountAlreadyVerified);
+      }
+
+      return await this.prisma.user.update({
         where: { id: user.id },
-        data: { isEmailVerified: true },
-      });
-
-      await this.prisma.verificationToken.delete({
-        where: { id: verificationToken.id },
-      });
-
-      return {
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          isEmailVerified: true,
+        data: {
+          accountStatus: AccountStatus.VERIFIED,
         },
-      };
+      });
     } catch (error: unknown) {
-      if (
-        error &&
-        typeof error === 'object' &&
-        'name' in error &&
-        error.name === 'TokenExpiredError'
-      )
-        throw new BadRequestException(validations.expiredToken);
-      throw new BadRequestException(
-        (typeof error === 'object' && error !== null && 'message' in error
-          ? (error as { message?: string }).message
-          : undefined) || errorMessages.accountVerificationFailed,
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      if (error && typeof error === 'object' && 'name' in error) {
+        if (
+          error.name === 'JsonWebTokenError' ||
+          error.name === 'TokenExpiredError'
+        ) {
+          throw new BadRequestException(validations.invalidToken);
+        }
+      }
+
+      throw new ServiceUnavailableException(
+        errorMessages.accountVerificationFailed,
       );
     }
   }
 
   async signinService(user: signinDto) {
     try {
-      const foundUser = await this.prisma.user.findUnique({
-        where: { email: user.email.toLowerCase() },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          isEmailVerified: true,
-          password: true,
-        },
-      });
-      if (!foundUser) {
+      const foundUser = await findUserByEmail(this.prisma, user.email);
+      const passwordValid = comparePassword(user.password, foundUser.password);
+      const isVerified = foundUser
+        ? foundUser.accountStatus === AccountStatus.VERIFIED
+        : false;
+      if (!passwordValid || !isVerified)
         throw new BadRequestException(validations.invalidCredentials);
-      }
 
-      if (!foundUser.isEmailVerified) {
-        throw new BadRequestException(validations.emailNotVerified);
-      }
-
-      const isPasswordValid = await comparePassword(
-        user.password,
-        foundUser.password,
-      );
-      if (!isPasswordValid) {
-        throw new BadRequestException(validations.invalidPassword);
-      }
-
-      const payload: JwtPayload = {
-        userId: foundUser.id,
-      };
-
-      const accessToken = this.jwt.sign(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_EXPIRATION'),
-      });
-
-      const refreshToken = this.jwt.sign(payload, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES'),
-      });
-
-      await this.prisma.refreshToken.create({
-        data: {
-          userId: foundUser.id,
-          tokenHash: refreshToken,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        },
-      });
+      const token = this.createLoginToken(foundUser);
 
       return {
+        token,
         user: {
           id: foundUser.id,
           name: foundUser.name,
           email: foundUser.email,
           role: foundUser.role,
-          isEmailVerified: foundUser.isEmailVerified,
+          accountStatus: foundUser.accountStatus,
         },
-        accessToken,
-        refreshToken,
       };
     } catch (error) {
       throw new BadRequestException(
@@ -212,5 +152,28 @@ export class AuthService {
           : undefined) || errorMessages.signinFailed,
       );
     }
+  }
+
+  private createLoginToken(user: UserInfo) {
+    const accessTokenDuration = '30m';
+    const accessToken = this.jwtService.sign(
+      {
+        sub: user.id,
+        token: AuthToken.ACCESS,
+      },
+      { expiresIn: accessTokenDuration, secret: this.secret },
+    );
+
+    const refreshTokenDuration = '7d';
+    const refreshToken = this.jwtService.sign(
+      {
+        sub: user.id,
+        email: user.email,
+        token: AuthToken.REFRESH_TOKEN,
+      },
+      { expiresIn: refreshTokenDuration, secret: this.secret },
+    );
+
+    return { accessToken, refreshToken };
   }
 }
