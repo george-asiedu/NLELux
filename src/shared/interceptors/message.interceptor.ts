@@ -4,22 +4,20 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { MessageOnly } from '../interfaces/auth/auth.model';
 import { Reflector } from '@nestjs/core';
+import { Observable } from 'rxjs';
 import { Response as ExpressResponse } from 'express';
-import { ResponseInterface } from '../../model/auth.model';
+import { map } from 'rxjs/operators';
 
 @Injectable()
-export class ResponseInterceptor<T>
-  implements NestInterceptor<T, ResponseInterface<T>>
-{
+export class MessageInterceptor implements NestInterceptor {
   constructor(private reflector: Reflector) {}
 
-  intercept(
+  public intercept(
     _context: ExecutionContext,
     next: CallHandler,
-  ): Observable<ResponseInterface<T>> {
+  ): Observable<MessageOnly> | Promise<Observable<MessageOnly>> {
     const message = this.reflector.get<string>(
       'message',
       _context.getHandler(),
@@ -28,10 +26,9 @@ export class ResponseInterceptor<T>
     const response = ctx.getResponse<ExpressResponse>();
 
     return next.handle().pipe(
-      map((data) => ({
+      map(() => ({
         status: response.statusCode,
         message,
-        data,
       })),
     );
   }
