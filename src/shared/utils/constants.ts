@@ -89,4 +89,5 @@ export const privileges = {
   rolesKey: 'roles',
   privilegesRestricted:
     'Role does not have the required privileges to access this resource',
+  accessDenied: 'Access denied',
 };
