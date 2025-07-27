@@ -1,35 +1,48 @@
 import {
   CanActivate,
+  ExecutionContext,
   Injectable,
   UnauthorizedException,
-  ExecutionContext,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { privileges, validations } from '../utils/constants';
-import { AuthRequest } from 'src/model/auth.model';
+import {
+  AuthRequestProps,
+  AuthToken,
+  JwtTokenPayload,
+} from '../interfaces/auth.model';
+import { ConfigService } from '@nestjs/config';
+import { findUserByEmail } from '../utils/auth.utils';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  private readonly secret: string;
+
   constructor(
     private jwtService: JwtService,
     private prisma: PrismaService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.secret = this.configService.get<string>('JWT_SECRET') as string;
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<AuthRequest>();
+    const request = context.switchToHttp().getRequest<AuthRequestProps>();
     const token = this.extractTokenFromHeader(request);
 
-    if (!token) throw new UnauthorizedException(validations.noTokenProvided);
+    if (!token) throw new UnauthorizedException(privileges.accessDenied);
 
     try {
-      const payload = this.jwtService.verify<{ id: string }>(token);
-
-      const user = await this.prisma.user.findUnique({
-        where: { id: payload.id },
-        select: { id: true, email: true, name: true, role: true },
+      const payload = this.jwtService.verify<JwtTokenPayload>(token, {
+        secret: this.secret,
       });
-      if (!user) {
+
+      const user = await findUserByEmail(this.prisma, payload.sub);
+      if (
+        (user.accountStatus !== 'VERIFIED' && !user) ||
+        payload.token !== AuthToken.ACCESS
+      ) {
         throw new UnauthorizedException(privileges.privilegesRestricted);
       }
 
@@ -40,7 +53,9 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private extractTokenFromHeader(request: AuthRequest): string | undefined {
+  private extractTokenFromHeader(
+    request: AuthRequestProps,
+  ): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
