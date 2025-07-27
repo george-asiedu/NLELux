@@ -15,25 +15,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ResponseInterceptor } from '../../shared/interceptor/response.interceptor';
 import { AuthService } from '../service/auth.service';
 import { signupDto, signupSchema } from '../dto/signup.dto';
 import { ZodValidationPipe } from '../../shared/pipe/zod.pipe';
-import {
-  signupBadRequest,
-  signupResponse,
-  SignupSwaggerDto,
-  userExists,
-  verifyAccountBadRequest,
-  verifyAccountResponse,
-  VerifyAccountSwaggerDto,
-  signinResponse,
-  signinBadRequest,
-  SigninSwaggerDto,
-  bodyDescription,
-  summary,
-  responseDescription,
-} from '../../shared/utils/swagger.utils';
 import {
   verifyAccountDto,
   verifyAccountSchema,
@@ -41,21 +25,50 @@ import {
 import { successMessages } from 'src/shared/utils/constants';
 import { AuthRoutes } from 'src/shared/utils/routes';
 import { signinDto, signinSchema } from '../dto/signin.dto';
+import { DataMessageInterceptor } from '../../shared/interceptors/data-message.interceptor';
+import { MessageInterceptor } from '../../shared/interceptors/message.interceptor';
+import {
+  signupBadRequest,
+  signupBadRequestDescription,
+  signupBodyDescription,
+  signupConflictDescription,
+  signupResponse,
+  signupSummary,
+  SignupSwaggerDto,
+  userExists,
+} from '../../shared/swagger/auth/signup.swagger';
+import {
+  tokenParam,
+  verificationBadRequestDescription,
+  verificationSummary,
+  VerificationSwaggerDto,
+  verifyAccountBadRequest,
+  verifyAccountBodyDescription,
+  verifyAccountResponse,
+} from '../../shared/swagger/auth/verify_account.swagger';
+import {
+  signinBadRequest,
+  signinBadRequestDescription,
+  signinBodyDescription,
+  signinResponse,
+  signinSummary,
+  SigninSwaggerDto,
+} from '../../shared/swagger/auth/signin.swagger';
 
 @ApiTags('Auth')
 @Controller('auth')
-@UseInterceptors(ResponseInterceptor)
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post(AuthRoutes.signup)
   @UsePipes(new ZodValidationPipe(signupSchema))
   @HttpCode(201)
+  @UseInterceptors(DataMessageInterceptor)
   @SetMetadata('message', successMessages.signup)
-  @ApiOperation({ summary: summary.signup })
+  @ApiOperation({ summary: signupSummary })
   @ApiBody({
+    description: signupBodyDescription,
     type: SignupSwaggerDto,
-    description: bodyDescription.signup,
   })
   @ApiResponse({
     status: 201,
@@ -64,12 +77,12 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description: responseDescription.badRequest,
+    description: signupBadRequestDescription,
     example: signupBadRequest,
   })
   @ApiResponse({
     status: 409,
-    description: responseDescription.conflict,
+    description: signupConflictDescription,
     example: userExists,
   })
   async signup(@Body() user: signupDto) {
@@ -78,16 +91,17 @@ export class AuthController {
 
   @Post(AuthRoutes.verifyAccount)
   @HttpCode(200)
+  @UseInterceptors(MessageInterceptor)
   @SetMetadata('message', successMessages.accountVerified)
-  @ApiOperation({ summary: summary.verifyAccount })
+  @ApiOperation({ summary: verificationSummary })
   @ApiParam({
     name: 'token',
-    description: bodyDescription.tokenParam,
+    description: tokenParam,
     required: true,
   })
   @ApiBody({
-    description: bodyDescription.verifyAccount,
-    type: VerifyAccountSwaggerDto,
+    description: verifyAccountBodyDescription,
+    type: VerificationSwaggerDto,
   })
   @ApiResponse({
     status: 200,
@@ -96,7 +110,7 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description: responseDescription.badRequest,
+    description: verificationBadRequestDescription,
     example: verifyAccountBadRequest,
   })
   async verify(
@@ -109,20 +123,21 @@ export class AuthController {
   @Post(AuthRoutes.signin)
   @UsePipes(new ZodValidationPipe(signinSchema))
   @HttpCode(200)
-  @SetMetadata('message', successMessages.login)
-  @ApiOperation({ summary: summary.signin })
+  @UseInterceptors(DataMessageInterceptor)
+  @SetMetadata('message', successMessages.signin)
+  @ApiOperation({ summary: signinSummary })
   @ApiBody({
+    description: signinBodyDescription,
     type: SigninSwaggerDto,
-    description: bodyDescription.signin,
   })
   @ApiResponse({
     status: 200,
-    description: successMessages.login,
+    description: successMessages.signin,
     example: signinResponse,
   })
   @ApiResponse({
     status: 400,
-    description: responseDescription.badRequest,
+    description: signinBadRequestDescription,
     example: signinBadRequest,
   })
   async signin(@Body() user: signinDto) {
