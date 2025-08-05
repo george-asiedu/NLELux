@@ -2,27 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import {
-  allowedHeaders,
-  allowedMethods,
-  allowedOrigins,
-  errorMessages,
-  swagger,
-} from './shared/utils/constants';
+import { errorMessages, swagger } from './shared/utils/constants';
 import { Request, Response } from 'express';
 import { NotFoundException } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
+    cors: true,
   });
-  app.enableCors({
-    origin: allowedOrigins,
-    methods: allowedMethods,
-    allowedHeaders: allowedHeaders,
-    credentials: true,
-  });
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api');
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 1600;
@@ -33,6 +22,7 @@ async function bootstrap() {
     .setVersion(swagger.swaggerDocsVersion)
     .addServer(`${swagger.localUrl}${port}/`, 'Local environment')
     .addServer(swagger.productionUrl, 'Production')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
