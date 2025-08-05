@@ -13,7 +13,7 @@ import {
   JwtTokenPayload,
 } from '../interfaces/auth.model';
 import { ConfigService } from '@nestjs/config';
-import { findUserByEmail } from '../utils/auth.utils';
+import { findUserByEmail } from '../repository/user.repository';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
