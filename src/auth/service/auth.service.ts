@@ -9,8 +9,7 @@ import { MailService } from '../../mail/service/mail.service';
 import { signupDto } from '../dto/signup.dto';
 import {
   comparePassword,
-  existingUser,
-  findUserByEmail,
+  createLoginToken,
   generateCode,
   hashPassword,
 } from '../../shared/utils/auth.utils';
@@ -19,12 +18,12 @@ import { ConfigService } from '@nestjs/config';
 import { errorMessages, validations } from '../../shared/utils/constants';
 import { verifyAccountDto } from '../dto/verify_account.dto';
 import { signinDto } from '../dto/signin.dto';
-import {
-  AuthToken,
-  JwtTokenPayload,
-  UserInfo,
-} from '../../shared/interfaces/auth.model';
+import { JwtTokenPayload } from '../../shared/interfaces/auth.model';
 import { AccountStatus } from '@prisma/client';
+import {
+  existingUser,
+  findUserByEmail,
+} from '../../shared/repository/user.repository';
 
 @Injectable()
 export class AuthService {
@@ -133,7 +132,11 @@ export class AuthService {
       if (!passwordValid || !isVerified)
         throw new BadRequestException(validations.invalidCredentials);
 
-      const token = this.createLoginToken(foundUser);
+      const token = createLoginToken(
+        foundUser,
+        this.jwtService,
+        this.configService,
+      );
 
       return {
         token,
@@ -152,28 +155,5 @@ export class AuthService {
           : undefined) || errorMessages.signinFailed,
       );
     }
-  }
-
-  private createLoginToken(user: UserInfo) {
-    const accessTokenDuration = '30m';
-    const accessToken = this.jwtService.sign(
-      {
-        sub: user.id,
-        token: AuthToken.ACCESS,
-      },
-      { expiresIn: accessTokenDuration, secret: this.secret },
-    );
-
-    const refreshTokenDuration = '7d';
-    const refreshToken = this.jwtService.sign(
-      {
-        sub: user.id,
-        email: user.email,
-        token: AuthToken.REFRESH_TOKEN,
-      },
-      { expiresIn: refreshTokenDuration, secret: this.secret },
-    );
-
-    return { accessToken, refreshToken };
   }
 }
