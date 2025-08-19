@@ -1,8 +1,17 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { privileges } from '../utils/constants';
-import { AuthRequestProps, AuthToken, JwtTokenPayload, } from '../interfaces/auth.model';
+import {
+  AuthRequestProps,
+  AuthToken,
+  JwtTokenPayload,
+} from '../interfaces/auth.model';
 import { ConfigService } from '@nestjs/config';
 import { findUserByID } from '../repository/user.repository';
 
