@@ -1,19 +1,10 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, } from '@nestjs/common';
+import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { privileges, validations } from '../utils/constants';
-import {
-  AuthRequestProps,
-  AuthToken,
-  JwtTokenPayload,
-} from '../interfaces/auth.model';
+import { privileges } from '../utils/constants';
+import { AuthRequestProps, AuthToken, JwtTokenPayload, } from '../interfaces/auth.model';
 import { ConfigService } from '@nestjs/config';
-import { findUserByEmail } from '../repository/user.repository';
+import { findUserByID } from '../repository/user.repository';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -38,7 +29,7 @@ export class AuthGuard implements CanActivate {
         secret: this.secret,
       });
 
-      const user = await findUserByEmail(this.prisma, payload.sub);
+      const user = await findUserByID(this.prisma, payload.sub);
       if (
         (user.accountStatus !== 'VERIFIED' && !user) ||
         payload.token !== AuthToken.ACCESS
@@ -48,8 +39,16 @@ export class AuthGuard implements CanActivate {
 
       request.user = user;
       return true;
-    } catch {
-      throw new UnauthorizedException(validations.invalidToken);
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedException(privileges.sessionExpired);
+      }
+
+      if (error instanceof JsonWebTokenError) {
+        throw new UnauthorizedException('Your token is invalid.');
+      }
+
+      throw new UnauthorizedException(error.message || privileges.accessDenied);
     }
   }
 
