@@ -47,3 +47,16 @@ export const createLoginToken = (
 
   return { accessToken, refreshToken };
 };
+
+export const generateToken = (
+  user: UserInfo,
+  jwtService: JwtService,
+  configService: ConfigService,
+) => {
+  const secretKey = configService.get<string>('JWT_SECRET');
+  const tokenDuration = '3h';
+  return jwtService.sign(
+    { sub: user.id },
+    { expiresIn: tokenDuration, secret: secretKey },
+  );
+};
