@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -11,6 +12,7 @@ import {
   comparePassword,
   createLoginToken,
   generateCode,
+  generateToken,
   hashPassword,
 } from '../../shared/utils/auth.utils';
 import { JwtService } from '@nestjs/jwt';
@@ -20,10 +22,7 @@ import { verifyAccountDto } from '../dto/verify_account.dto';
 import { signinDto } from '../dto/signin.dto';
 import { JwtTokenPayload } from '../../shared/interfaces/auth.model';
 import { AccountStatus } from '@prisma/client';
-import {
-  existingUser,
-  findUserByEmail,
-} from '../../shared/repository/user.repository';
+import { existingUser, findUserByEmail, } from '../../shared/repository/user.repository';
 
 @Injectable()
 export class AuthService {
@@ -154,6 +153,24 @@ export class AuthService {
           ? (error as { message?: string }).message
           : undefined) || errorMessages.signinFailed,
       );
+    }
+  }
+
+  async forgotPassword(email: string) {
+    try {
+      const user = await findUserByEmail(this.prisma, email);
+      const token = generateToken(user, this.jwtService, this.configService);
+
+      return await this.mailService.sendForgotPasswordEmail(
+        email,
+        user.name,
+        token,
+      );
+    } catch (error: unknown) {
+      if (error instanceof BadRequestException) {
+        throw new BadRequestException(error.message);
+      }
+      throw new InternalServerErrorException('Something went wrong');
     }
   }
 }
