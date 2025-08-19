@@ -72,6 +72,9 @@ export const emailMessages = {
   verifyAccount: 'Verify your account',
   verificationMailSent: 'Verification email sent successfully to',
   failedVerificationMail: 'Failed to send verification email to',
+  forgotPassword: 'Reset your password',
+  mailSent: 'Email sent successfully to',
+  failedSendingMail: 'Failed to send email to',
 };
 
 export const privileges = {
