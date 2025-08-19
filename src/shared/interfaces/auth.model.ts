@@ -56,3 +56,8 @@ export interface VerifyEmailProps {
   code: string;
   expirationTime?: string;
 }
+
+export interface EmailTokenProps {
+  name: string;
+  token: string;
+}
