@@ -78,5 +78,6 @@ export const privileges = {
   rolesKey: 'roles',
   privilegesRestricted:
     'Role does not have the required privileges to access this resource',
-  accessDenied: 'Access denied',
+  accessDenied: 'Access denied, no token provided',
+  sessionExpired: 'Your session has expired. Please log in again.',
 };
